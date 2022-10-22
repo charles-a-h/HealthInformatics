@@ -1,0 +1,395 @@
+---
+title:  "Data Science of Health Informatics"
+subtitle:  "Healthcare Interoperability and Influenza"
+author: "Charles A. Hulebak"
+header-includes:
+- \usepackage{titling}
+- \pretitle{\begin{center}\LARGE\includegraphics[width=4in]{02Images/01.jpg}
+- \posttitle{\end{center}}\\[\bigskipamount]}
+output:
+  html_document:
+    df_print: paged
+    number_sections: no
+    toc: yes
+    toc_depth: 3
+    toc_float: yes
+    theme: simplex
+  pdf_document:
+    citation_package: natbib
+    df_print: kable
+    fig_crop: no
+    latex_engine: xelatex
+    number_sections: no
+    toc: yes
+    toc_depth: 3
+  word_document: default
+geometry:
+- top=2.5cm
+- bottom=2.5cm
+- left=2.5cm
+- right=2.5cm
+- heightrounded
+highlight-style: haddock
+linkcolor: blue
+mainfont: Arial
+fontsize: 11pt
+sansfont: Verdana
+documentclass: report
+urlcolor: blue
+theme: journal
+---
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set #(echo = TRUE)
+```
+
+```{r warning=FALSE, message=FALSE, out.width='100%', fig.align = 'center', echo=FALSE}
+#HTML version
+knitr::include_graphics("02Images/01.jpg", dpi = 150)
+```
+
+# Introduction
+
+Health informatics provides the ability to derive insights from data, however how we arrive to data synthesis requires more complex processes.  This overview of health informatics explores the both the systems that support the science, as well as the data science that provides useful information for economics and forecasting healthcare burdens.
+
+The topics introduced include:
+
+1.	Healthcare Information Systems
+2.	Healthcare Standards 
+3.	National Healthcare Data
+4.	How to Analyze a specific dataset utilizing a combination of datasets, queries, and data science methodologies 
+
+Many datasets are available within the healthcare industry, ranging from global and national, to regional and local healthcare systems.  The healthcare community utilizes a combination of information systems and standards to promote interoperability for exchanging information electronically.  
+
+## Healthcare Information Systems and Interoperability
+
+Within the healthcare industry, information systems that manage data are required to securely exchange data with other systems using privacy and security standards.  Healthcare information exchange occurs between systems while valuing security, safe, timely, and efficiency for the provision of patient-centered care.  Interoperability considers secure data exchange between systems, structural format and syntax of data exchange, common underlying models and codification, as well as organizational standards, policies, and workflows.
+
+Healthcare information systems are protected by laws and regulations, such as within the United States, the Health Insurance Portability and Accountability Act (HIPAA) of 1996 was created to protect sensitive medical records and personal health information for individuals. The HIPAA Security Rule of 2005 additionally introduced additional technical and non-technical safeguards.  The General Data Protection Regulation (GDPR) provides privacy and security regulations for processing and storage of data relating to data within the European Union (EU).
+
+## Healthcare Standards
+
+Healthcare standards are developed by Standards Development Organizations (SDOs) to meet industry needs, and are often accredited by American National Standards Institute (ANSI).^1^ 
+
+The members of SDOs include a variety of healthcare providers, insurance, to technical and many others.  The utilization of standards varies upon the mission or interests of the organization, and currently there are over 40 SDOs that develop, bundle Integrating the Healthcare Enterprise (IHE) profiles, and maintain these standards.  The development of standards may take two to three years to ensure they work properly and the following diagram shows the process steps for developing standards.^1^
+
+```{r warning=FALSE, message=FALSE, out.width='100%', fig.align = 'center', echo=FALSE}
+knitr::include_graphics("02Images/02.png", dpi = 150)
+```
+
+A directory of SDOs by Industry can be reviewed at the Standards Portal, which provides an abundant amount of information about SDOs including industry sectors, classification by International Classification for Standards (ICS), and other characteristics.2
+
+## SDO Categories
+
+SDOs are widely used within the healthcare industry, and typically fall into one of four categories, which include privacy and security standards, terminology, content, as well as data exchange/transport standards.  A few examples of each of these include:
+
+### Privacy and Security Standards
+*  Protected Health Information (PHI) and Electronic (ePHI)
+*  Family Educational Rights and Privacy Act (FERPA)
+*  HIPAA
+*  GDPR
+
+### Transport standards
+
+*  Direct Standard: secure message exchange for authenticated, encrypted health information
+*  Fast Healthcare Interoperability Resources (FHIR):  Application Programming Interface (API) for patient data
+*  Digital Imaging and Communications in Medicine (DICOM): medical images
+*  Clinical Data Interchange Standards Consortium (CDISC): clinical trial data exchange 
+*  Prescription data exchange (SCRIPT): electronic prescription data
+Content standards
+*  Consolidated CDA (C-CDA): clinical documents
+*  HL7V2 and V3: clinical messaging
+*  United States Core Data for Interoperability (USCDI): health data classes and constituent data elements
+
+### Terminology Standards
+
+*  Current Procedural Terminology (CPT):  codes are numbers assigned to each task and service that you can get from a healthcare provider
+*  Healthcare Common procedure Coding System (HCPCS): standardized codes that represent medical procedures, supplies, products and services 
+*  Systematize Nomenclature of Medicine (SNOMED): comprehensive health and clinical terminology that covers most of the needs of health care documentation
+*  National Drug Code (NDC): a universal product identifier for human drugs in the United States
+*  International Classification of Disease (ICD-10-CM): promote international comparability in the collection, processing, classification, and presentation of mortality statistics
+*  Logical Observation Identifiers Names and Codes (LOINC): clinical terminology that is important for laboratory test orders and results
+*  RXNORM: normalized naming system for generic and branded drugs (now includes the United States Pharmacopeia (USP) Compendial Nomenclature from the United States Pharmacopeial Convention. USP is a cumulative data set of all Active Pharmaceutical Ingredients (API)^3^
+
+## A Common Healthcare Framework to Provide Insights for Healthcare Conditions
+
+Healthcare information systems and standards provide the ability to exchange data.  Data can also be retrieved to analyze meaningful insights for our future.  This next section will explore influenza, known as the flu, which is a common respiratory illness that infects the nose, throat, and lungs.  The two primary types, A and B, occur seasonally and flu vaccinations are common to protect ourselves from spreading this risk.
+
+The disease burden from disease can be measured by a number of factors, including illnesses, hospitalizations, deaths, as well as economics associated with treating conditions.
+The Center for Disease Control (CDC) estimates that the flu burden within the United States between 2010 and 2020 has resulted in 9 to 41 million illnesses, 140,000 – 710,000 hospitalizations, and 12,000 – 52,000 deaths.^4^  The disparity in these results is often difficult for healthcare providers to verify that a patient was positively identified for having the flu when being treated within the healthcare system.
+
+The healthcare system is also associated with economic systems.  Although the data and analysis associated with economics related to healthcare costs reside within healthcare systems and providers, economic analysis was performed by a team of researchers in Australia.^5^  These results applied to a 2015 U.S. population included the following estimates:
+
+*  Total economic burden of influenza to the healthcare system:  $11.2 billion ($6.3-$25.3 billion)
+*  Direct medical costs:  $3.2 billion ($1.5-$11.7 billion)
+*  Indirect costs:  $8.0 billion ($4.8-$13.6 billion)
+
+## Using Data Science and Analytics to Query and Process Datasets
+
+There is an abundant amount of healthcare data available for analysis, however the most challenging aspect is to align the objective with data sources, followed by representing that information as correctly as possible.  The ability to analyze data provides the ability for healthcare systems to operate more efficiently for current and future requirements.  This data science and analysis process seeks to determine the overall annual impact associated with influenza in association to individual cost, healthcare system (hospital of analysis) financial cost, and mortality rate in 2020. 
+
+**The data used to perform research in the United States includes:**
+
+1.	US Census Bureau population data: total annual reported population data
+2.	Centers for Disease Control (CDC) and Prevention, National Center for Immunization and Respiratory Diseases (NCIRD): patient population
+3.	National Institute of Health (NIH), National Library of Medicine (NLM): economic and financial impact from healthcare system associated with societal data
+
+### Data Preparation
+
+Data preparation includes initially analyzing the catchment population, which is 200,000 individuals for this analysis.  The Centers for Disease Control (CDC), Influenza-like Illness Surveillance Network (ILINet)^4,6^  ILINet consists of outpatient healthcare providers in all 50 states, Puerto Rico, the District of Columbia and the U.S. Virgin Islands reporting approximately 60 million patient visits during the 2019-20 season. Each week, approximately 3,000 outpatient healthcare providers around the country report data to CDC on the total number of patients seen for any reason and the number of those patients with influenza-like illness (ILI) by age group (0-4 years, 5-24 years, 25-49 years, 50-64 years, and ≥65 years).
+
+### Data Sampling
+
+The outcomes of the most importance was to sample the overall data to determine the total effect from annual influenza.  The healthcare data provides the ability to separate and isolate specific age groups from the population, and further analysis can be conducted to support associated analysis.  For this dataset, the ICD-10-CM standard was used and may be coded with other designations to indicate novel/non-novel as a descriptors
+
+**Examples of variables that healthcare administrators can code for influenza include:^6^**
+```{r warning=FALSE, message=FALSE, out.width='100%', fig.align = 'center', echo=FALSE}
+knitr::include_graphics("02Images/03.png", dpi = 150)
+```
+
+### Querying the Data
+
+Datasets can be queried utilizing a number of software and database management applications.  The analysis performed on these datasets used a combination of applications, including SAS, R, as well as spreadsheet viewers and editors such as Microsoft Excel.  
+
+```{r warning=FALSE, message=FALSE, out.width='100%', fig.align = 'center', echo=FALSE}
+knitr::include_graphics("02Images/04.png", dpi = 150)
+```
+
+A strategy for diagnosing the flu would initially include evaluating symptoms, vital signs and risk factors to determine if a patient has a high probability of the flu.
+**“Journalism” table:**
+```{r warning=FALSE, message=FALSE, out.width='100%', fig.align = 'center', echo=FALSE}
+knitr::include_graphics("02Images/05.png", dpi = 150)
+```
+
+### Additional Considerations
+*  Omit codes: not associated with influenza or respiratory illnesses
+*  Codes to include: J10.-, J09.X2, J10.-, J11.1, J11.-
+*  Number of discharges: quantify the number of discharges associated with influenza codes for patient treatment
+*  Rate of discharges: quantify the length of time that patients that are coded with influenza are entering and exiting the healthcare system
+
+## Data Results
+*  Risk of admission for flu (CDC cumulative incidence rate for all age groups)7: 0.8 per 100,000 population
+*  Number at risk: 2,374 (1.19% average risk rate of 200,000 catchment population size)5
+*  Hospital expected number of admissions: 49,906
+*  The Healthcare Cost and Utilization Project (HCUP) indicates that 7.7% of all emergency department visits are associated with ILI, and 21.5% admitted as an inpatient from the ED.8
+*  Number of discharges expected at the hospital of analysis: 2,374 patients will be admitted, and 2,321 will be discharged (from a catchment population of 200,000)
+*  Cost per patient: $11,406 (total flu patients/total average burden of cost)
+*  Total cost in the hospital of analysis:  $27,083,944 (avg. cost per patient * total patients)
+*  In-hospital mortality rate: 0.107% (flu patients / mortality patients)
+*  Death burden in the hospital of analysis: 53 patients
+
+```{r warning=FALSE, message=FALSE, out.width='70%', fig.align = 'center', echo=FALSE}
+knitr::include_graphics("02Images/06.png", dpi = 150)
+```
+
+## Conclusion
+
+This analysis utilized many different statistical factors associated with influenza to forecast the overall annual impact.  Initially, the United States population was assessed, which provided various ratios that were meaningful to use for a smaller population catchment.  Accuracy can be increased by using more specified criteria, such as the geological location and historical data for the healthcare system.  In general, this was a great opportunity to work through multiple datasets to determine conditions associated with influenza using data science and analytics.
+
+Although the original analysis was performed on another software platform, the subsequent objective with this dataset is to transform the file types for machine readability in R, including data visualizations and analysis in a later iteration. 
+
+Similar types of work can be performed on many diseases to more accurately determine and forecast healthcare industry trends.
+
+### References and Works Cited{-}
+
+1.	“Standards development organizations,” Chapter 2 - SDO Education Playbook. [Online]. Available: https://www.healthit.gov/playbook/sdo-education/chapter-2/. 
+2.	“Resources,” Standards Developing Organizations (SDOs). [Online]. Available: https://www.standardsportal.org/usa_en/resources/sdo.aspx. 
+3.	“Rxnorm Overview,” U.S. National Library of Medicine. [Online]. Available: https://www.nlm.nih.gov/research/umls/rxnorm/overview.html. 
+4.	“Disease burden of flu,” Centers for Disease Control and Prevention. [Online]. Available: https://www.cdc.gov/flu/about/burden/index.html. 
+5.	“U.S. Influenza Surveillance System: Purpose and Methods.” Centers for Disease Control and Prevention, Centers for Disease Control and Prevention, 6 Oct. 2020, www.cdc.gov/flu/weekly/overview.htm.
+6.	Putri W.C.W.S., Muscatello D.J., Stockwell M.S., Newall A.T. (2018). Economic burden of seasonal influenza in the United States. Vaccine. 2018 Jun 22;36(27):3960-3966. doi: 10.1016/j.vaccine.2018.05.057. Epub 2018 May 22. PMID: 29801998.
+7.	L. M. Johnson, “ICD-10 coding for the flu,” MedLearn Publishing, 19-Oct-2022. [Online]. Available: https://icd10monitor.com/icd-10-coding-for-the-flu/. 
+8.	“Laboratory-confirmed influenza hospitalizations,” Centers for Disease Control and Prevention. [Online]. Available: https://gis.cdc.gov/grasp/fluview/fluhosprates.html. 
+
+* Data source URLS are subject to change depending upon the access date of accessing URL
+** Cover Image credit: Beards, Unsplash
+
+**Keywords**
+Analytics, American National Standards Institute (ANSI), Center for Disease Control (CDC), 	Clinical Data Interchange Standards Consortium (CDISC), Consolidated CDA (C-CDA), Current Procedural Terminology (CPT), data analysis, data preparation, data relationships, data sampling, data science, data sets, data queries, data visualization, Digital Imaging and Communications in Medicine (DICOM), Direct Standard, Family Educational Rights and Privacy Act (FERPA), Fast Healthcare Interoperability Resources (FHIR), General Data Protection Regulation (GDPR), Healthcare Common procedure Coding System (HCPCS), healthcare data, Health Level Seven International (HL7) healthcare information systems, Healthcare Cost and Utilization Project (HCUP), healthcare standards, healthcare utilization,  illness, influenza, International Classification of Disease (ICD-10-CM), Logical Observation Identifiers Names and Codes (LOINC), National Drug Code (NDC), population, National Institute of Health (NIH), National Library of Medicine (NLM), Prescription data exchange, Privacy and Security Standards, Protected Health Information (PHI) and Electronic (ePHI), RXNORM, Standards Development Organizations (SDOs), statistics, Systematize Nomenclature of Medicine (SNOMED), Transport standards, U.S. Census Bureau, United States Core Data for Interoperability (USCDI), U.S. Department of Commerce, U.S. Environmental Protection Agency, Health Insurance Portability and Accountability Act (HIPAA).
+
+**Attribution-NonCommercial-ShareAlike 4.0 International**
+
+Creative Commons Corporation ("Creative Commons") is not a law firm and does not provide legal services or legal advice. Distribution of Creative Commons public licenses does not create a lawyer-client or other relationship. Creative Commons makes its licenses and related information available on an "as-is" basis. Creative Commons gives no warranties regarding its licenses, any material licensed under their terms and conditions, or any related information. Creative Commons disclaims all liability for damages resulting from their use to the fullest extent possible.
+
+Using Creative Commons Public Licenses
+
+Creative Commons public licenses provide a standard set of terms and conditions that creators and other rights holders may use to share original works of authorship and other material subject to copyright and certain other rights specified in the public license below. The following considerations are for informational purposes only, are not exhaustive, and do not form part of our licenses.
+
+Considerations for licensors: Our public licenses are intended for use by those authorized to give the public permission to use material in ways otherwise restricted by copyright and certain other rights. Our licenses are irrevocable. Licensors should read and understand the terms and conditions of the license they choose before applying it.  Licensors should also secure all rights necessary before applying our licenses so that the public can reuse the material as expected. Licensors should clearly mark any material not subject to the license. This includes other CC-licensed material, or material used under an exception or limitation to copyright. More considerations for licensors:
+
+wiki.creativecommons.org/Considerations_for_licensors
+Considerations for the public: By using one of our public licenses, a licensor grants the public permission to use the licensed material under specified terms and conditions. If the licensor's permission is not necessary for any reason—for example, because of any applicable exception or limitation to copyright--then that use is not regulated by the license. Our licenses grant only permissions under copyright and certain other rights that a licensor has authority to grant. Use of the licensed material may still be restricted for other reasons, including because others have copyright or other rights in the material. A licensor may make special requests, such as asking that all changes be marked or described. Although not required by our licenses, you are encouraged to respect those requests where reasonable. More considerations for the public:
+wiki.creativecommons.org/Considerations_for_licensees
+
+=======================================================================
+
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+Public License
+
+By exercising the Licensed Rights (defined below), You accept and agree to be bound by the terms and conditions of this Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International Public License ("Public License"). To the extent this Public License may be interpreted as a contract, You are granted the Licensed Rights in consideration of Your acceptance of these terms and conditions, and the Licensor grants You such rights in consideration of benefits the Licensor receives from making the Licensed Material available under these terms and conditions.
+
+Section 1 -- Definitions.
+
+  a. Adapted Material means material subject to Copyright and Similar Rights that is derived from or based upon the Licensed Material and in which the Licensed Material is translated, altered, arranged, transformed, or otherwise modified in a manner requiring permission under the Copyright and Similar Rights held by the Licensor. For purposes of this Public License, where the Licensed Material is a musical work, performance, or sound recording, Adapted Material is always produced where the Licensed Material is synced in timed relation with a moving image.
+
+  b. Adapter's License means the license You apply to Your Copyright and Similar Rights in Your contributions to Adapted Material in accordance with the terms and conditions of this Public License.
+
+  c. BY-NC-SA Compatible License means a license listed at creativecommons.org/compatiblelicenses, approved by Creative Commons as essentially the equivalent of this Public License.
+
+  d. Copyright and Similar Rights means copyright and/or similar rights closely related to copyright including, without limitation, performance, broadcast, sound recording, and Sui Generis Database      Rights, without regard to how the rights are labeled or categorized. For purposes of this Public License, the rights specified in Section 2(b)(1)-(2) are not Copyright and Similar Rights.
+
+  e. Effective Technological Measures means those measures that, in the absence of proper authority, may not be circumvented under laws fulfilling obligations under Article 11 of the WIPO Copyright Treaty adopted on December 20, 1996, and/or similar international agreements.
+
+  f. Exceptions and Limitations means fair use, fair dealing, and/or any other exception or limitation to Copyright and Similar Rights that applies to Your use of the Licensed Material.
+
+  g. License Elements means the license attributes listed in the name of a Creative Commons Public License. The License Elements of this Public License are Attribution, NonCommercial, and ShareAlike.
+
+  h. Licensed Material means the artistic or literary work, database, other material to which the Licensor applied this Public License.
+
+  i. Licensed Rights means the rights granted to You subject to the terms and conditions of this Public License, which are limited to all Copyright and Similar Rights that apply to Your use of the Licensed Material and that the Licensor has authority to license.
+
+  j. Licensor means the individual(s) or entity(ies) granting rights under this Public License.
+
+  k. NonCommercial means not primarily intended for or directed towards commercial advantage or monetary compensation. For purposes of this Public License, the exchange of the Licensed Material for      other material subject to Copyright and Similar Rights by digital file-sharing or similar means is NonCommercial provided there is no payment of monetary compensation in connection with the exchange.
+
+  l. Share means to provide material to the public by any means or process that requires permission under the Licensed Rights, such as reproduction, public display, public performance, distribution,     dissemination, communication, or importation, and to make material available to the public including in ways that members of the may access the material from a place and at a time individually chosen by them.
+
+  m. Sui Generis Database Rights means rights other than copyright resulting from Directive 96/9/EC of the European Parliament and of the Council of 11 March 1996 on the legal protection of databases, as amended and/or succeeded, as well as other essentially equivalent rights anywhere in the world.
+
+  n. You means the individual or entity exercising the Licensed Rights under this Public License. Your has a corresponding meaning.
+
+Section 2 -- Scope.
+
+  a. License grant.
+
+       1. Subject to the terms and conditions of this Public License, Licensor hereby grants You a worldwide, royalty-free, non-sublicensable, non-exclusive, irrevocable license to exercise the Licensed Rights in the Licensed Material to:
+
+            a. reproduce and Share the Licensed Material, in whole or in part, for NonCommercial purposes only; and
+
+            b. produce, reproduce, and Share Adapted Material for NonCommercial purposes only.
+
+       2. Exceptions and Limitations. For the avoidance of doubt, where Exceptions and Limitations apply to Your use, this Public License does not apply, and You do not need to comply with its terms and conditions.
+
+       3. Term. The term of this Public License is specified in Section 6(a).
+
+       4. Media and formats; technical modifications allowed. The Licensor authorizes You to exercise the Licensed Rights in all media and formats whether now known or hereafter created, to make technical modifications necessary to do so. The Licensor waives and/or agrees not to assert any right or authority to forbid You from making technical modifications necessary to exercise the Licensed Rights, including           technical modifications necessary to circumvent Effective Technological Measures. For purposes of this Public License, making modifications authorized by this Section 2(a) (4) never produces Adapted Material.
+
+       5. Downstream recipients.
+
+            a. Offer from the Licensor -- Licensed Material. Every recipient of the Licensed Material automatically receives an offer from the Licensor to exercise the Licensed Rights under the terms and conditions of this Public License.
+
+            b. Additional offer from the Licensor -- Adapted Material.  Every recipient of Adapted Material from You automatically receives an offer from the Licensor to exercise the Licensed Rights in the Adapted Material under the conditions of the Adapter's License You apply.
+
+            c. No downstream restrictions. You may not offer or impose any additional or different terms or conditions on, or apply any Effective Technological Measures to, the Licensed Material if doing so restricts exercise of the Licensed Rights by any recipient of the Licensed Material.
+
+       6. No endorsement. Nothing in this Public License constitutes or may be construed as permission to assert or imply that You are, or that Your use of the Licensed Material is, connected with, or sponsored, endorsed, or granted official status by, Licensor or others designated to receive attribution as provided in Section 3(a)(1)(A)(i).
+
+  b. Other rights.
+
+       1. Moral rights, such as the right of integrity, are not licensed under this Public License, nor are publicity, privacy, and/or other similar personality rights; however, to the extent possible, the Licensor waives and/or agrees not to assert any such rights held by the Licensor to the limited extent necessary to allow You to exercise the Licensed Rights, but not otherwise.
+
+       2. Patent and trademark rights are not licensed under this Public License.
+
+       3. To the extent possible, the Licensor waives any right to collect royalties from You for the exercise of the Licensed Rights, whether directly or through a collecting society under any voluntary or waivable statutory or compulsory licensing scheme. In all other cases the Licensor expressly reserves any right to collect such royalties, including when the Licensed Material is used other than for NonCommercial purposes.
+
+Section 3 -- License Conditions.
+
+Your exercise of the Licensed Rights is expressly made subject to the following conditions.
+
+  a. Attribution.
+
+       1. If You Share the Licensed Material (including in modified form), You must:
+
+            a. retain the following if it is supplied by the Licensor with the Licensed Material:
+
+                 i. identification of the creator(s) of the Licensed Material and any others designated to receive attribution, in any reasonable manner requested by the Licensor (including by pseudonym if designated);
+
+                ii. a copyright notice;
+
+               iii. a notice that refers to this Public License;
+
+                iv. a notice that refers to the disclaimer of
+                    warranties;
+
+                 v. a URI or hyperlink to the Licensed Material to the
+                    extent reasonably practicable;
+
+            b. indicate if You modified the Licensed Material and retain an indication of any previous modifications; and
+
+            c. indicate the Licensed Material is licensed under this Public License, and include the text of, or the URI or hyperlink to, this Public License.
+
+       2. You may satisfy the conditions in Section 3(a)(1) in any reasonable manner based on the medium, means, and context in which You Share the Licensed Material. For example, it may be reasonable to satisfy the conditions by providing a URI or hyperlink to a resource that includes the required information.
+       3. If requested by the Licensor, You must remove any of the information required by Section 3(a)(1)(A) to the extent reasonably practicable.
+
+  b. ShareAlike.
+
+     In addition to the conditions in Section 3(a), if You Share Adapted Material You produce, the following conditions also apply.
+
+       1. The Adapter's License You apply must be a Creative Commons license with the same License Elements, this version or later, or a BY-NC-SA Compatible License.
+
+       2. You must include the text of, or the URI or hyperlink to, the Adapter's License You apply. You may satisfy this condition in any reasonable manner based on the medium, means, and context in which You Share Adapted Material.
+
+       3. You may not offer or impose any additional or different terms conditions on, or apply any Effective Technological Measures to, Adapted Material that restrict exercise of the rights granted under the Adapter's License You apply.
+
+Section 4 -- Sui Generis Database Rights.
+
+Where the Licensed Rights include Sui Generis Database Rights that apply to Your use of the Licensed Material:
+
+  a. for the avoidance of doubt, Section 2(a)(1) grants You the right to extract, reuse, reproduce, and Share all or a substantial portion of the contents of the database for NonCommercial purposes only;
+
+  b. if You include all or a substantial portion of the database contents in a database in which You have Sui Generis Database Rights, then the database in which You have Sui Generis Database Rights (but not its individual contents) is Adapted Material, including for purposes of Section 3(b); and
+  c. You must comply with the conditions in Section 3(a) if You Share or a substantial portion of the contents of the database.
+
+For the avoidance of doubt, this Section 4 supplements and does not replace Your obligations under this Public License where the Licensed Rights include other Copyright and Similar Rights.
+
+Section 5 -- Disclaimer of Warranties and Limitation of Liability.
+
+  a. UNLESS OTHERWISE SEPARATELY UNDERTAKEN BY THE LICENSOR, TO THE EXTENT POSSIBLE, THE LICENSOR OFFERS THE LICENSED MATERIAL AS-IS AND AS-AVAILABLE, AND MAKES NO REPRESENTATIONS OR WARRANTIES OF ANY KIND CONCERNING THE LICENSED MATERIAL, WHETHER EXPRESS, IMPLIED, STATUTORY, OR OTHER. THIS INCLUDES, WITHOUT LIMITATION, WARRANTIES OF TITLE, MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ABSENCE OF LATENT OR OTHER DEFECTS, ACCURACY, OR THE PRESENCE OR ABSENCE OF ERRORS, WHETHER OR NOT     KNOWN OR DISCOVERABLE. WHERE DISCLAIMERS OF WARRANTIES ARE NOT ALLOWED IN FULL OR IN PART, THIS DISCLAIMER MAY NOT APPLY TO YOU.
+
+  b. TO THE EXTENT POSSIBLE, IN NO EVENT WILL THE LICENSOR BE LIABLE TO YOU ON ANY LEGAL THEORY (INCLUDING, WITHOUT LIMITATION, NEGLIGENCE) OR OTHERWISE FOR ANY DIRECT, SPECIAL, INDIRECT, INCIDENTAL, CONSEQUENTIAL, PUNITIVE, EXEMPLARY, OR OTHER LOSSES, COSTS, EXPENSES, OR DAMAGES ARISING OUT OF THIS PUBLIC LICENSE OR USE OF THE LICENSED MATERIAL, EVEN IF THE LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH LOSSES, COSTS, EXPENSES, OR DAMAGES. WHERE A LIMITATION OF LIABILITY IS NOT ALLOWED IN FULL OR IN PART, THIS LIMITATION MAY NOT APPLY TO YOU.
+
+  c. The disclaimer of warranties and limitation of liability provided above shall be interpreted in a manner that, to the extent possible, most closely approximates an absolute disclaimer and waiver of all liability.
+
+Section 6 -- Term and Termination.
+
+  a. This Public License applies for the term of the Copyright and Similar Rights licensed here. However, if You fail to comply with this Public License, then Your rights under this Public License terminate automatically.
+
+  b. Where Your right to use the Licensed Material has terminated under Section 6(a), it reinstates:
+
+       1. automatically as of the date the violation is cured, provided it is cured within 30 days of Your discovery of the violation; or
+
+       2. upon express reinstatement by the Licensor.
+
+     For the avoidance of doubt, this Section 6(b) does not affect any right the Licensor may have to seek remedies for Your violations of this Public License.
+
+  c. For the avoidance of doubt, the Licensor may also offer the Licensed Material under separate terms or conditions or stop distributing the Licensed Material at any time; however, doing so will not terminate this Public License.
+
+  d. Sections 1, 5, 6, 7, and 8 survive termination of this Public License.
+
+Section 7 -- Other Terms and Conditions.
+
+  a. The Licensor shall not be bound by any additional or different terms or conditions communicated by You unless expressly agreed.
+
+  b. Any arrangements, understandings, or agreements regarding the Licensed Material not stated herein are separate from and independent of the terms and conditions of this Public License.
+
+Section 8 -- Interpretation.
+
+  a. For the avoidance of doubt, this Public License does not, and shall not be interpreted to, reduce, limit, restrict, or impose conditions on any use of the Licensed Material that could lawfully be made without permission under this Public License.
+
+  b. To the extent possible, if any provision of this Public License is deemed unenforceable, it shall be automatically reformed to the minimum extent necessary to make it enforceable. If the provision cannot be reformed, it shall be severed from this Public License without affecting the enforceability of the remaining terms and conditions.
+
+  c. No term or condition of this Public License will be waived and no failure to comply consented to unless expressly agreed to by the Licensor.
+
+  d. Nothing in this Public License constitutes or may be interpreted as a limitation upon, or waiver of, any privileges and immunities that apply to the Licensor or You, including from the legal processes of any jurisdiction or authority.
+
+=======================================================================
+
+Creative Commons is not a party to its public licenses. Notwithstanding, Creative Commons may elect to apply one of its public licenses to material it publishes and in those instances will be considered the “Licensor.” The text of the Creative Commons public licenses is dedicated to the public domain under the CC0 Public Domain Dedication. Except for the limited purpose of indicating that material is shared under a Creative Commons public license or as otherwise permitted by the Creative Commons policies published at creativecommons.org/policies, Creative Commons does not authorize the use of the trademark "Creative Commons" or any other trademark or logo of Creative Commons without its prior written consent including, without limitation, in connection with any unauthorized modifications to any of its public licenses or any other arrangements, understandings, or agreements concerning use of licensed material. For the avoidance of doubt, this paragraph does not form part of the public licenses.
+
+Creative Commons may be contacted at creativecommons.org.
+```{r fig.show = "hold", out.width = "40%", fig.align = "center", echo=FALSE}
+knitr::include_graphics("02Images/CC-BY-NC-SA-Image.jpg", dpi = 150) 
+```
+
+This data may also be protected by the California Consumer Privacy Act (CCPA), GDPR, and other legal restriction depending upon your jurisdiction.
+
+The data is publicly available and shared within the works cited section.  Please download the data for yourself and create meaningful value, while respecting the investment of time, training, education, time, and processes used to develop this publication as a digital product.  Thank you for taking time to read, learn, and hopefully inspiration to contribute towards a better future for all of us.
